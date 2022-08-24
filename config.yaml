@@ -1,0 +1,8 @@
+kafka_retry_topic:
+kafka_eingangs_topic:
+kafka_brokers: localhost:9093
+kafka_auth_enabled: false
+kafka_user:
+kafka_password:
+kafka_consumer_group_id: 1
+kafka_batch_size: 10

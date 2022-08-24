@@ -1,0 +1,47 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: -retry
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: "Replace"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: retry-app
+              image: retry-app:latest
+              imagePullPolicy: Always
+              env:
+                - name: RETRY_KAFKA_BROKERS
+                  valueFrom:
+                    configMapKeyRef:
+                      key: kafka_brokers
+                      name: kafka-brokers
+                - name: RETRY_KAFKA_RETRY_TOPIC
+                  valueFrom:
+                    configMapKeyRef:
+                      key: topic.fehlerdienst.retry
+                      name: kafka-topics
+                - name: RETRY_KAFKA_EINGANGS_TOPIC
+                  valueFrom:
+                    configMapKeyRef:
+                      key: topic.fehlereingang
+                      name: kafka-topics
+                - name: RETRY_KAFKA_DEADLETTER_TOPIC
+                  valueFrom:
+                    configMapKeyRef:
+                      key: topic.fehlerdienst.deadletter
+                      name: kafka-topics
+                - name: RETRY_KAFKA_AUTH_ENABLED
+                  value: "false"
+                - name: RETRY_KAFKA_CONSUMER_GROUP_ID
+                  value: fehlerdienst
+                - name: RETRY_KAFKA_BATCH_SIZE
+                  value: "5"
+                - name: RETRY_KAFKA_FAILED_CONSUMER_GROUP_ID_HEADER_NAME
+                  value: "failed.consumer.group.id"
+                - name: RETRY_KAFKA_RETRYS_HEADER_NAME
+                  value: "retrys"
+          restartPolicy: OnFailure
